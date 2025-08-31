@@ -55,11 +55,9 @@ loginController.login = async (req, res) => {
     //Primero, determino si el usuario está bloqueado o no
     if (userType !== "Admin") {
       if (userFound.lockTime > Date.now()) {
-        const minutosRestantes = Math.ceil(
-          userFound.lockTime - Date.now() / 60000
-        );
+        const minutosRestantes = Math.ceil((userFound.lockTime - Date.now()) / 60000);
         return res.status(403).json({
-          message: "Cuenta bloqueada, intenta de nuevo en" + minutosRestantes,
+          message: "Cuenta bloqueada, intenta de nuevo en " + minutosRestantes + " minutos",
         });
       }
     }
@@ -89,7 +87,7 @@ loginController.login = async (req, res) => {
     }
 
     // Generar token
-    jsonwebtoken.sign(
+    const token = jsonwebtoken.sign(
       //1- Que voy a guardar
       { id: userFound._id, userType },
       //2- Clave secreta
@@ -106,6 +104,7 @@ loginController.login = async (req, res) => {
     res.json({ message: "login successful" });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 export default loginController;
